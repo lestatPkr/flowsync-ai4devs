@@ -1,5 +1,4 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router'
+import { useEffect, useState } from 'react'
 import { useAuth } from '@/auth/useAuth'
 import { Button } from '@/components/ui/button'
 import {
@@ -19,18 +18,25 @@ function formatDate(value: string): string {
 }
 
 export function ProfilePage() {
-  const { user, logout } = useAuth()
-  const navigate = useNavigate()
+  const { user, logout, refreshProfile } = useAuth()
   const [leaving, setLeaving] = useState(false)
+
+  // La vista protegida lee su propio dato de `GET /api/v1/account/profile` en
+  // vez de fiarse del payload del login: refleja cambios hechos fuera de esta
+  // pestaña y detecta un token revocado a mitad de sesión.
+  useEffect(() => {
+    void refreshProfile()
+  }, [refreshProfile])
 
   if (!user) {
     return null
   }
 
+  // No hace falta navegar: al quedar la sesión anónima, ProtectedRoute
+  // redirige a /login por sí solo.
   async function handleLogout() {
     setLeaving(true)
     await logout()
-    navigate('/login', { replace: true })
   }
 
   return (

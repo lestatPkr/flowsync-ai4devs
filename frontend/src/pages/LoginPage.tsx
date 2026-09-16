@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { toFormErrors, type FormErrors } from '@/lib/api-errors'
+import { validateEmail, validateRequiredPassword } from '@/lib/form-validation'
 
 const NO_ERRORS: FormErrors = { message: '', fieldErrors: {} }
 
@@ -21,6 +22,20 @@ export function LoginPage() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+
+    // Se valida antes de llamar: así un formulario vacío no devuelve los
+    // mensajes en inglés de VineJS ("The email field must be defined").
+    const fieldErrors: Record<string, string> = {}
+    const emailError = validateEmail(email)
+    const passwordError = validateRequiredPassword(password)
+    if (emailError) fieldErrors.email = emailError
+    if (passwordError) fieldErrors.password = passwordError
+
+    if (Object.keys(fieldErrors).length > 0) {
+      setErrors({ message: '', fieldErrors })
+      return
+    }
+
     setErrors(NO_ERRORS)
     setSubmitting(true)
 

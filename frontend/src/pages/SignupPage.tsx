@@ -8,12 +8,14 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { toFormErrors, type FormErrors } from '@/lib/api-errors'
+import {
+  PASSWORD_MAX,
+  PASSWORD_MIN,
+  validateEmail,
+  validateNewPassword,
+} from '@/lib/form-validation'
 
 const NO_ERRORS: FormErrors = { message: '', fieldErrors: {} }
-
-/** Mismos límites que `signupValidator` en el backend, para avisar antes de la llamada. */
-const PASSWORD_MIN = 8
-const PASSWORD_MAX = 32
 
 export function SignupPage() {
   const { signup } = useAuth()
@@ -25,12 +27,21 @@ export function SignupPage() {
   const [errors, setErrors] = useState<FormErrors>(NO_ERRORS)
   const [submitting, setSubmitting] = useState(false)
 
+  // Se valida antes de llamar: así un formulario incompleto no devuelve los
+  // mensajes en inglés de VineJS ("The email field must be defined").
   function validateLocally(): Record<string, string> {
     const fieldErrors: Record<string, string> = {}
 
-    if (password.length < PASSWORD_MIN || password.length > PASSWORD_MAX) {
-      fieldErrors.password = `La contraseña debe tener entre ${PASSWORD_MIN} y ${PASSWORD_MAX} caracteres.`
+    const emailError = validateEmail(email)
+    if (emailError) {
+      fieldErrors.email = emailError
     }
+
+    const passwordError = validateNewPassword(password)
+    if (passwordError) {
+      fieldErrors.password = passwordError
+    }
+
     if (password !== passwordConfirmation) {
       fieldErrors.passwordConfirmation = 'Las contraseñas no coinciden.'
     }

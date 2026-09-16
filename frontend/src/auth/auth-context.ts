@@ -9,6 +9,8 @@ export type AuthContextValue = {
   login: (payload: LoginPayload) => Promise<void>
   signup: (payload: SignupPayload) => Promise<void>
   logout: () => Promise<void>
+  /** Relee el perfil desde la API. Cierra la sesión si el token ya no vale. */
+  refreshProfile: () => Promise<void>
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null)

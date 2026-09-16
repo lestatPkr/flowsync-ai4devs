@@ -1,4 +1,5 @@
-const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3333'
+// `||` y no `??`: un `VITE_API_URL=` vacío en el .env debe caer al valor por defecto.
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3333'
 
 /** Forma de los errores que devuelve AdonisJS: `{ errors: [{ message, field?, rule? }] }`. */
 export type ApiErrorDetail = {

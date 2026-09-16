@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Navigate } from 'react-router'
+import { Navigate, useLocation } from 'react-router'
 import { useAuth } from '@/auth/useAuth'
 import { FullPageSpinner } from '@/components/FullPageSpinner'
 
@@ -9,13 +9,15 @@ import { FullPageSpinner } from '@/components/FullPageSpinner'
  */
 export function ProtectedRoute({ children }: { children: ReactNode }) {
   const { status } = useAuth()
+  const location = useLocation()
 
   if (status === 'loading') {
     return <FullPageSpinner />
   }
 
   if (status === 'anonymous') {
-    return <Navigate to="/login" replace />
+    // Se guarda el destino para volver a él tras iniciar sesión.
+    return <Navigate to="/login" replace state={{ from: location.pathname }} />
   }
 
   return children
