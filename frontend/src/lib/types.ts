@@ -30,3 +30,16 @@ export type LoginPayload = {
   email: string
   password: string
 }
+
+export type TaskStatus = 'pending' | 'in_progress' | 'done'
+
+/**
+ * Espejo de `TaskTransformer` del backend (app/transformers/task_transformer.ts).
+ */
+export type Task = {
+  id: number
+  title: string
+  status: TaskStatus
+  assignee: Pick<User, 'id' | 'fullName' | 'initials'>
+  createdAt: string
+}

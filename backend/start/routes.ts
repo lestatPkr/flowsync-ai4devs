@@ -33,5 +33,14 @@ router
       .prefix('account')
       .as('profile')
       .use(middleware.auth())
+
+    router
+      .group(() => {
+        router.get('/', [controllers.Tasks, 'index'])
+        router.post('/', [controllers.Tasks, 'store'])
+      })
+      .prefix('tasks')
+      .as('tasks')
+      .use(middleware.auth())
   })
   .prefix('/api/v1')

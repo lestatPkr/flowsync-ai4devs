@@ -18,4 +18,10 @@ export interface ApiDefinition {
       destroy: typeof routes['profile.access_tokens.destroy']
     }
   }
+  tasks: {
+    tasks: {
+      index: typeof routes['tasks.tasks.index']
+      store: typeof routes['tasks.tasks.store']
+    }
+  }
 }
