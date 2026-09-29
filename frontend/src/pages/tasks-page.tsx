@@ -25,6 +25,12 @@ export function TasksPage() {
     setTasks((current) => [task, ...current])
   }
 
+  const handleUpdated = (task: Task) => {
+    setTasks((current) =>
+      current.map((item) => (item.id === task.id ? task : item)),
+    )
+  }
+
   return (
     <div className="bg-muted/40 min-h-svh p-6">
       <div className="mx-auto flex max-w-2xl flex-col gap-6">
@@ -37,7 +43,9 @@ export function TasksPage() {
             onCreateFirst={() => document.getElementById('title')?.focus()}
           />
         )}
-        {!isLoading && tasks.length > 0 && <TaskList tasks={tasks} />}
+        {!isLoading && tasks.length > 0 && (
+          <TaskList tasks={tasks} token={token} onTaskUpdated={handleUpdated} />
+        )}
       </div>
     </div>
   )

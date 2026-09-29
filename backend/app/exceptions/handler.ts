@@ -1,5 +1,6 @@
 import app from '@adonisjs/core/services/app'
 import { type HttpContext, ExceptionHandler } from '@adonisjs/core/http'
+import { errors as lucidErrors } from '@adonisjs/lucid'
 
 export default class HttpExceptionHandler extends ExceptionHandler {
   /**
@@ -13,6 +14,14 @@ export default class HttpExceptionHandler extends ExceptionHandler {
    * response to the client
    */
   async handle(error: unknown, ctx: HttpContext) {
+    /**
+     * A missing row (`findOrFail`) answers with the same `{ errors }` shape
+     * as the 401 and 422 responses, in every environment.
+     */
+    if (error instanceof lucidErrors.E_ROW_NOT_FOUND) {
+      return ctx.response.status(404).send({ errors: [{ message: 'Row not found' }] })
+    }
+
     return super.handle(error, ctx)
   }
 

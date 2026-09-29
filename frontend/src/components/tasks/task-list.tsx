@@ -1,18 +1,15 @@
-import type { Task, TaskStatus } from '@/lib/types'
+import type { Task } from '@/lib/types'
 import { Card } from '@/components/ui/card'
-
-const STATUS_LABELS: Record<TaskStatus, string> = {
-  pending: 'Pendiente',
-  in_progress: 'En curso',
-  done: 'Hecho',
-}
+import { TaskStatusSelect } from '@/components/tasks/task-status-select'
 
 type TaskListProps = {
   tasks: Task[]
+  token: string
+  onTaskUpdated: (task: Task) => void
 }
 
 /** Título, responsable y estado de cada tarea, sin necesidad de abrirla. */
-export function TaskList({ tasks }: TaskListProps) {
+export function TaskList({ tasks, token, onTaskUpdated }: TaskListProps) {
   return (
     <ul className="flex flex-col gap-2">
       {tasks.map((task) => (
@@ -21,9 +18,11 @@ export function TaskList({ tasks }: TaskListProps) {
             <span className="min-w-0 truncate font-medium">{task.title}</span>
             <div className="text-muted-foreground flex shrink-0 items-center gap-3 text-sm">
               <span>{task.assignee.fullName ?? 'Sin nombre'}</span>
-              <span className="bg-muted rounded-full px-2 py-0.5">
-                {STATUS_LABELS[task.status]}
-              </span>
+              <TaskStatusSelect
+                task={task}
+                token={token}
+                onUpdated={onTaskUpdated}
+              />
             </div>
           </Card>
         </li>

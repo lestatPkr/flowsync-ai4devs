@@ -3,6 +3,7 @@ import type {
   LoginPayload,
   SignupPayload,
   Task,
+  TaskStatus,
   User,
 } from '@/lib/types'
 
@@ -42,6 +43,7 @@ const FIELD_LABELS: Record<string, string> = {
   password: 'la contraseña',
   passwordConfirmation: 'la confirmación de la contraseña',
   title: 'el título',
+  status: 'el estado',
 }
 
 const label = (field?: string) => FIELD_LABELS[field ?? ''] ?? 'el campo'
@@ -68,6 +70,8 @@ function translate(error: BackendError): string {
       return `${label(field)} debe tener al menos ${meta?.min} caracteres.`
     case 'maxLength':
       return `${label(field)} no puede superar los ${meta?.max} caracteres.`
+    case 'enum':
+      return 'Ese estado no es válido. Elige Pendiente, En curso o Hecho.'
     default:
       return `Revisa ${label(field)}.`
   }
@@ -109,7 +113,7 @@ function toApiError(status: number, body: unknown): ApiError {
 }
 
 type RequestOptions = {
-  method?: 'GET' | 'POST'
+  method?: 'GET' | 'POST' | 'PATCH'
   body?: unknown
   token?: string | null
 }
@@ -191,4 +195,27 @@ export function listTasks(token: string): Promise<Task[]> {
   return request<{ data: Task[] }>('/api/v1/tasks', { token }).then(
     (response) => response.data,
   )
+}
+
+export function updateTaskStatus(
+  id: number,
+  status: TaskStatus,
+  token: string,
+): Promise<Task> {
+  return request<{ data: Task }>(`/api/v1/tasks/${id}/status`, {
+    method: 'PATCH',
+    body: { status },
+    token,
+  })
+    .then((response) => response.data)
+    .catch((error: unknown) => {
+      // Solo este endpoint responde 404, y siempre es porque la tarea ya no existe.
+      if (error instanceof ApiError && error.status === 404) {
+        throw new ApiError(
+          'Esta tarea ya no existe: puede que alguien la haya borrado. Recarga la página para ver la lista al día.',
+          404,
+        )
+      }
+      throw error
+    })
 }

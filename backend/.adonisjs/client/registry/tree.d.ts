@@ -23,5 +23,8 @@ export interface ApiDefinition {
       index: typeof routes['tasks.tasks.index']
       store: typeof routes['tasks.tasks.store']
     }
+    taskStatuses: {
+      update: typeof routes['tasks.task_statuses.update']
+    }
   }
 }
