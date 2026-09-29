@@ -1,5 +1,19 @@
 <!--
 Sync Impact Report
+- Version change: 1.0.0 → 1.1.0 (MINOR: se amplía materialmente el Principio II)
+- Principio II ampliado con: la matriz de comportamiento (camino feliz / 422 / 401 / 404) como
+  Definition of Done de todo endpoint; test que falla antes y pasa después para todo cambio de
+  comportamiento; tests de caracterización antes de refactorizar; suelo de cobertura de
+  `backend/app/` que solo sube (`npm run test:coverage`, c8 como dependencia de desarrollo aprobada
+  en su propio commit). Se retira la frase "hoy no existe base de pruebas": la montó E2-1.
+- Principios I, III, IV y V: sin cambios. Governance: sin cambios.
+- Plantillas dependientes: sin cambios. `/speckit-plan` debe reflejar la matriz en el diseño de
+  tests de cada cambio; `/speckit-analyze` trata su ausencia como violación del Principio II.
+- Follow-up TODOs: el harness que OBLIGA (hooks de commit y PR) no forma parte de esta constitución
+  y se instala aparte: la constitución dice la regla; el hook la garantiza.
+-->
+<!--
+Sync Impact Report (1.0.0)
 - Version change: (plantilla sin ratificar) → 1.0.0
 - Ratificación inicial: se reemplazan todos los placeholders de la plantilla por el contenido
   específico de FlowSync.
@@ -39,12 +53,24 @@ técnicos.
 
 Toda historia P1 llega con al menos un test funcional (Japa, en `backend/tests/functional/`) que
 cubre su camino feliz y sus errores. No se edita ni se borra un test para que pase. La suite
-(`npm test` en `backend/`) DEBE correr en verde antes de dar por hecha una tarea. Hoy no existe
-base de pruebas (R-7 del PRD): el primer cambio que la necesite MUST montarla, y ese coste se
-cuenta dentro del cambio, no se da por hecho.
+(`npm test` en `backend/`) DEBE correr en verde antes de dar por hecha una tarea. La base de pruebas
+la montó E2-1 (`specs/001-crear-tarea/`): su coste ya está pagado y ningún cambio lo vuelve a contar.
+
+La Definition of Done de todo endpoint es la **matriz de comportamiento completa** —camino feliz,
+entrada inválida (`422`), sin sesión (`401`) y recurso inexistente (`404`) cuando aplique—, asertada
+contra la forma completa de la respuesta, no contra un código de estado y un campo suelto. Un cambio
+de comportamiento, incluido un bug, entra con un test que falla antes y pasa después. Un refactor
+fija primero el comportamiento actual (tests de caracterización) y no lo cambia: un cambio de
+comportamiento es un cambio aparte.
+
+La cobertura de líneas de `backend/app/` (`npm run test:coverage`) NO DEBE bajar del suelo que fije
+el harness; el suelo solo sube, y subirlo es un PR aparte. La cobertura es respaldo, nunca el listón:
+el listón es la matriz.
 
 **Razón**: sin tests funcionales la spec es solo prosa; el test es lo único que verifica que el
-criterio de aceptación se cumple y sigue cumpliéndose.
+criterio de aceptación se cumple y sigue cumpliéndose. Y una suite verde con aserciones débiles no
+es seguridad: es silencio. La matriz obliga a mirar los caminos que se pudren sin ruido (validación,
+sesión, ausencia); la cobertura solo avisa de lo que nadie ha mirado.
 
 ### III. La valla manda
 
@@ -90,4 +116,4 @@ PATCH ante aclaraciones o correcciones de redacción sin cambio semántico.
 se ajusta la spec, el plan o las tareas, nunca el principio. Toda revisión del
 `adversarial-reviewer` contrasta el cambio contra esta constitución y contra `BOUNDARIES.md`.
 
-**Version**: 1.0.0 | **Ratified**: 2026-09-23 | **Last Amended**: 2026-09-23
+**Version**: 1.1.0 | **Ratified**: 2026-09-23 | **Last Amended**: 2026-09-29
