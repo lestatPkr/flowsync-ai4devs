@@ -1,0 +1,8 @@
+{
+  "all": true,
+  "src": ["app"],
+  "include": ["app/**"],
+  "exclude": ["**/*.d.ts"],
+  "reporter": ["text-summary", "json-summary"],
+  "reports-dir": "coverage"
+}
