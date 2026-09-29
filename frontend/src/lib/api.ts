@@ -3,6 +3,7 @@ import type {
   LoginPayload,
   SignupPayload,
   Task,
+  TaskDetail,
   TaskStatus,
   User,
 } from '@/lib/types'
@@ -44,9 +45,14 @@ const FIELD_LABELS: Record<string, string> = {
   passwordConfirmation: 'la confirmación de la contraseña',
   title: 'el título',
   status: 'el estado',
+  dueDate: 'la fecha de vencimiento',
 }
 
 const label = (field?: string) => FIELD_LABELS[field ?? ''] ?? 'el campo'
+
+/** Mensaje de una fecha que no existe, a medio escribir o fuera de rango. */
+export const INVALID_DATE_MESSAGE =
+  'Esa fecha no existe o está incompleta. Escribe un día, un mes y un año de cuatro cifras.'
 
 /**
  * Traduce un error de VineJS a una frase que el usuario pueda entender.
@@ -72,6 +78,9 @@ function translate(error: BackendError): string {
       return `${label(field)} no puede superar los ${meta?.max} caracteres.`
     case 'enum':
       return 'Ese estado no es válido. Elige Pendiente, En curso o Hecho.'
+    case 'date':
+    case 'date.afterOrEqual':
+      return INVALID_DATE_MESSAGE
     default:
       return `Revisa ${label(field)}.`
   }
@@ -113,7 +122,7 @@ function toApiError(status: number, body: unknown): ApiError {
 }
 
 type RequestOptions = {
-  method?: 'GET' | 'POST' | 'PATCH'
+  method?: 'GET' | 'POST' | 'PATCH' | 'PUT'
   body?: unknown
   token?: string | null
 }
@@ -197,18 +206,48 @@ export function listTasks(token: string): Promise<Task[]> {
   )
 }
 
-export function getTask(id: string, token: string): Promise<Task> {
-  return request<{ data: Task }>(`/api/v1/tasks/${encodeURIComponent(id)}`, {
-    token,
-  })
+/**
+ * El día de hoy de quien mira, 'AAAA-MM-DD', con la fecha local del navegador
+ * (nunca `toISOString()`, que da el día UTC). Se calcula en cada llamada para
+ * que una pestaña abierta varios días pida siempre con el día correcto.
+ */
+function localToday(): string {
+  const now = new Date()
+  const month = String(now.getMonth() + 1).padStart(2, '0')
+  const day = String(now.getDate()).padStart(2, '0')
+  return `${now.getFullYear()}-${month}-${day}`
+}
+
+/** Un 404 al leer o escribir una tarea concreta: la tarea ya no existe. */
+function taskNotFound(error: unknown): never {
+  // Aquí un 404 es una tarea borrada, que nunca existió o con un id que no es un número.
+  if (error instanceof ApiError && error.status === 404) {
+    throw new ApiError('Puede que alguien la haya borrado.', 404)
+  }
+  throw error
+}
+
+export function getTask(id: string, token: string): Promise<TaskDetail> {
+  return request<{ data: TaskDetail }>(
+    `/api/v1/tasks/${encodeURIComponent(id)}?today=${localToday()}`,
+    { token },
+  )
     .then((response) => response.data)
-    .catch((error: unknown) => {
-      // Aquí un 404 es una tarea borrada, que nunca existió o con un id que no es un número.
-      if (error instanceof ApiError && error.status === 404) {
-        throw new ApiError('Puede que alguien la haya borrado.', 404)
-      }
-      throw error
-    })
+    .catch(taskNotFound)
+}
+
+/** Pone, cambia (`'AAAA-MM-DD'`) o quita (`null`) la fecha de vencimiento de una tarea. */
+export function setDueDate(
+  id: number,
+  dueDate: string | null,
+  token: string,
+): Promise<TaskDetail> {
+  return request<{ data: TaskDetail }>(
+    `/api/v1/tasks/${id}/due-date?today=${localToday()}`,
+    { method: 'PUT', body: { dueDate }, token },
+  )
+    .then((response) => response.data)
+    .catch(taskNotFound)
 }
 
 export function updateTaskStatus(

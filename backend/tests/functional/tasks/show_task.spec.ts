@@ -62,6 +62,8 @@ function expectedBody(task: Task, assignee: User, createdAt: string) {
       status: task.status,
       assignee: { id: assignee.id, fullName: assignee.fullName, initials: assignee.initials },
       createdAt,
+      dueDate: null,
+      isOverdue: false,
     },
   }
 }
@@ -140,7 +142,7 @@ test.group('Tasks show (GET /api/v1/tasks/:id)', (group) => {
     const response = await client.get(`/api/v1/tasks/${task.id}`).loginAs(oscar)
 
     response.assertStatus(200)
-    assert.deepEqual(response.body().data, listed)
+    assert.deepEqual(response.body().data, { ...listed, dueDate: null, isOverdue: false })
   })
 
   test('abre una tarea en «Hecho» como cualquier otra', async ({ client, assert }) => {

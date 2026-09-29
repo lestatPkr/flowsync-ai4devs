@@ -33,12 +33,14 @@ export class AuthAccessTokenSchema extends BaseModel {
 }
 
 export class TaskSchema extends BaseModel {
-  static $columns = ['assigneeId', 'createdAt', 'id', 'status', 'title', 'updatedAt'] as const
+  static $columns = ['assigneeId', 'createdAt', 'dueDate', 'id', 'status', 'title', 'updatedAt'] as const
   $columns = TaskSchema.$columns
   @column()
   declare assigneeId: number
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
+  @column.date()
+  declare dueDate: DateTime | null
   @column({ isPrimary: true })
   declare id: number
   @column()

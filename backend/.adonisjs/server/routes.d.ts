@@ -12,6 +12,7 @@ export type ScannedRoutes = {
     'tasks.tasks.store': { paramsTuple?: []; params?: {} }
     'tasks.tasks.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'tasks.task_statuses.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'tasks.task_due_dates.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
   GET: {
     'profile.profile.show': { paramsTuple?: []; params?: {} }
@@ -31,6 +32,9 @@ export type ScannedRoutes = {
   }
   PATCH: {
     'tasks.task_statuses.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+  }
+  PUT: {
+    'tasks.task_due_dates.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
 }
 declare module '@adonisjs/core/types/http' {
