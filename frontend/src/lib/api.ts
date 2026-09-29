@@ -197,6 +197,20 @@ export function listTasks(token: string): Promise<Task[]> {
   )
 }
 
+export function getTask(id: string, token: string): Promise<Task> {
+  return request<{ data: Task }>(`/api/v1/tasks/${encodeURIComponent(id)}`, {
+    token,
+  })
+    .then((response) => response.data)
+    .catch((error: unknown) => {
+      // Aquí un 404 es una tarea borrada, que nunca existió o con un id que no es un número.
+      if (error instanceof ApiError && error.status === 404) {
+        throw new ApiError('Puede que alguien la haya borrado.', 404)
+      }
+      throw error
+    })
+}
+
 export function updateTaskStatus(
   id: number,
   status: TaskStatus,
@@ -209,7 +223,7 @@ export function updateTaskStatus(
   })
     .then((response) => response.data)
     .catch((error: unknown) => {
-      // Solo este endpoint responde 404, y siempre es porque la tarea ya no existe.
+      // Aquí un 404 siempre es porque la tarea ya no existe.
       if (error instanceof ApiError && error.status === 404) {
         throw new ApiError(
           'Esta tarea ya no existe: puede que alguien la haya borrado. Recarga la página para ver la lista al día.',

@@ -3,6 +3,7 @@ import { LoginPage } from '@/pages/login-page'
 import { RegisterPage } from '@/pages/register-page'
 import { ProfilePage } from '@/pages/profile-page'
 import { TasksPage } from '@/pages/tasks-page'
+import { TaskPage } from '@/pages/task-page'
 import { ProtectedRoute } from '@/routes/protected-route'
 import { PublicOnlyRoute } from '@/routes/public-only-route'
 
@@ -16,6 +17,7 @@ export function AppRoutes() {
 
       <Route element={<ProtectedRoute />}>
         <Route path="/tasks" element={<TasksPage />} />
+        <Route path="/tasks/:id" element={<TaskPage />} />
         <Route path="/profile" element={<ProfilePage />} />
       </Route>
 

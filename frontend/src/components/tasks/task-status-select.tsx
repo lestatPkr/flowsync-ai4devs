@@ -1,14 +1,9 @@
 import { useRef, useState } from 'react'
 import { ApiError, updateTaskStatus } from '@/lib/api'
 import type { Task, TaskStatus } from '@/lib/types'
+import { STATUS_LABELS } from '@/lib/task-status'
 import { FieldError } from '@/components/field-error'
 import { cn } from '@/lib/utils'
-
-const STATUS_LABELS: Record<TaskStatus, string> = {
-  pending: 'Pendiente',
-  in_progress: 'En curso',
-  done: 'Hecho',
-}
 
 type TaskStatusSelectProps = {
   task: Task

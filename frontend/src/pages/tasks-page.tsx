@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useLocation } from 'react-router'
 import { useAuth } from '@/auth/use-auth'
 import { listTasks } from '@/lib/api'
 import { TaskForm } from '@/components/tasks/task-form'
@@ -10,6 +11,9 @@ export function TasksPage() {
   const { token } = useAuth()
   const [tasks, setTasks] = useState<Task[]>([])
   const [isLoading, setLoading] = useState(true)
+  const location = useLocation()
+  const focusTaskId = (location.state as { focusTaskId?: number } | null)
+    ?.focusTaskId
 
   useEffect(() => {
     if (!token) return
@@ -17,6 +21,12 @@ export function TasksPage() {
       .then(setTasks)
       .finally(() => setLoading(false))
   }, [token])
+
+  // Al volver de una tarea, el teclado sigue desde la tarea que se abrió.
+  useEffect(() => {
+    if (isLoading || focusTaskId === undefined) return
+    document.getElementById(`task-${focusTaskId}-link`)?.focus()
+  }, [isLoading, focusTaskId])
 
   // `ProtectedRoute` garantiza que aquí ya hay sesión resuelta, con token.
   if (!token) return null

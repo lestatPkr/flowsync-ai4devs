@@ -5,10 +5,15 @@
 
 /// <reference path="./manifest.d.ts" />
 import type { InferData, InferVariants } from '@adonisjs/core/types/transformers'
+import type TaskDetailTransformer from '#transformers/task_detail_transformer'
 import type TaskTransformer from '#transformers/task_transformer'
 import type UserTransformer from '#transformers/user_transformer'
 
 export namespace Data {
+  export type TaskDetail = InferData<TaskDetailTransformer>
+  export namespace TaskDetail {
+    export type Variants = InferVariants<TaskDetailTransformer>
+  }
   export type Task = InferData<TaskTransformer>
   export namespace Task {
     export type Variants = InferVariants<TaskTransformer>
