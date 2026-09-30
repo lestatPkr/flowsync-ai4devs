@@ -164,11 +164,11 @@ Las tallas S/M/L miden dentro de ese techo, no en horas. Talla y riesgo van por 
 **Tipo:** Migración/DB · **Talla:** S · **Riesgo:** bajo
 **Entrega:** la persistencia pasa a poder representar tanto una tarea con fecha de vencimiento como una sin ella.
 
-- [ ] La migración se ejecuta limpia sobre una base que ya contiene tareas.
-- [ ] Su reverso deja el esquema como estaba.
-- [ ] Las tareas anteriores a la migración siguen siendo válidas después de aplicarla.
+- [x] La migración se ejecuta limpia sobre una base que ya contiene tareas.
+- [x] Su reverso deja el esquema como estaba.
+- [x] Las tareas anteriores a la migración siguen siendo válidas después de aplicarla.
 - [ ] El esquema generado se regenera con el comando del proyecto y se commitea; no se edita a mano.
-- [ ] Lint, formato y typecheck del backend en verde.
+- [x] Lint, formato y typecheck del backend en verde.
 
 **Depende de:** que la tarea exista (historia de creación, fuera de FS-118).
 **Nota de riesgo:** la base de desarrollo y la de pruebas son el mismo fichero; migrar toca también el estado local.
@@ -178,12 +178,12 @@ Las tallas S/M/L miden dentro de ese techo, no en horas. Talla y riesgo van por 
 **Tipo:** Modelo/Dominio · **Talla:** M · **Riesgo:** alto
 **Entrega:** la lógica que decide si una tarea está vencida (CA-5 a CA-10, CA-19 y CA-20).
 
-- [ ] La regla vive en el dominio y no se reimplementa en ninguna otra capa.
-- [ ] Pruebas unitarias de los cuatro bordes: día anterior, mismo día, día posterior y sin fecha.
-- [ ] Prueba de que una tarea hecha con la fecha pasada no está vencida, y de que pasar a hecho no altera la fecha.
-- [ ] Prueba con dos días de referencia distintos: dos personas obtienen lecturas diferentes y ambas son correctas.
-- [ ] Prueba de que una tarea pasa a vencida por el mero avance del día, sin que nadie la modifique.
-- [ ] Lint, formato y typecheck del backend en verde.
+- [x] La regla vive en el dominio y no se reimplementa en ninguna otra capa.
+- [x] Pruebas unitarias de los cuatro bordes: día anterior, mismo día, día posterior y sin fecha.
+- [x] Prueba de que una tarea hecha con la fecha pasada no está vencida, y de que pasar a hecho no altera la fecha.
+- [x] Prueba con dos días de referencia distintos: dos personas obtienen lecturas diferentes y ambas son correctas.
+- [x] Prueba de que una tarea pasa a vencida por el mero avance del día, sin que nadie la modifique.
+- [x] Lint, formato y typecheck del backend en verde.
 
 **Depende de:** FS-118.1.
 **Nota de riesgo:** el más peligroso de la historia pese a ser M. CA-5 es la trampa clásica del día de más; CA-19 junto a CA-20 obliga a decidir si el vencimiento se resuelve al mirar o se congela al guardar, y ese fallo no se manifiesta hasta que alguien cruza la medianoche. Es además el nodo con más tickets colgando por detrás.
@@ -193,15 +193,15 @@ Las tallas S/M/L miden dentro de ese techo, no en horas. Talla y riesgo van por 
 **Tipo:** Endpoint/API · **Talla:** M · **Riesgo:** medio
 **Entrega:** establecer, cambiar y retirar la fecha de una tarea existente, y consultarla junto con su condición de vencimiento.
 
-- [ ] Sigue las convenciones de ruta y de forma de respuesta ya establecidas en el proyecto; nada ad hoc.
-- [ ] La respuesta se construye con el transformer correspondiente; no se devuelve el modelo en crudo.
-- [ ] La entrada se valida con el mecanismo de validación del proyecto; una fecha no válida se rechaza señalando el campo, con el mismo formato de error que ya usa el resto de la API.
-- [ ] Una fecha ya pasada se acepta sin bloquearla.
-- [ ] Retirar la fecha es una operación admitida, no un caso de error.
-- [ ] Exige sesión iniciada, igual que el resto del espacio, y no comprueba propiedad de la tarea.
-- [ ] Pruebas de integración de: fijar, cambiar, retirar y entrada no válida.
+- [x] Sigue las convenciones de ruta y de forma de respuesta ya establecidas en el proyecto; nada ad hoc.
+- [x] La respuesta se construye con el transformer correspondiente; no se devuelve el modelo en crudo.
+- [x] La entrada se valida con el mecanismo de validación del proyecto; una fecha no válida se rechaza señalando el campo, con el mismo formato de error que ya usa el resto de la API.
+- [x] Una fecha ya pasada se acepta sin bloquearla.
+- [x] Retirar la fecha es una operación admitida, no un caso de error.
+- [x] Exige sesión iniciada, igual que el resto del espacio, y no comprueba propiedad de la tarea.
+- [x] Pruebas de integración de: fijar, cambiar, retirar y entrada no válida.
 - [ ] Los tipos generados para el cliente se regeneran y se commitean si cambian.
-- [ ] Lint, formato y typecheck del backend en verde.
+- [x] Lint, formato y typecheck del backend en verde.
 
 **Depende de:** FS-118.2.
 **Nota de riesgo:** primeras pruebas que escriben en la base, compartida con el servidor de desarrollo: sin aislar el estado, los fallos van y vienen.
@@ -211,7 +211,7 @@ Las tallas S/M/L miden dentro de ese techo, no en horas. Talla y riesgo van por 
 **Tipo:** Frontend · **Talla:** M · **Riesgo:** medio
 **Entrega:** la interacción de CA-2, CA-3, CA-14, CA-15 y CA-16, más la señal de CA-4 y la ausencia deliberada de CA-11 y CA-12.
 
-- [ ] La llamada a la API se añade al único punto de contacto del proyecto, nunca dentro del componente.
+- [x] La llamada a la API se añade al único punto de contacto del proyecto, nunca dentro del componente.
 - [ ] El cambio se ve reflejado al instante, sin recargar ni reabrir la tarea, y queda guardado sin ningún paso adicional.
 - [ ] Quitar la fecha no abre ningún diálogo de confirmación.
 - [ ] Una fecha no válida deja intacta la que hubiera y muestra el mensaje junto al campo, en castellano, reutilizando el mecanismo de errores por campo ya existente.
@@ -219,7 +219,7 @@ Las tallas S/M/L miden dentro de ese techo, no en horas. Talla y riesgo van por 
 - [ ] La lista principal no muestra fechas ni marca de vencimiento alguna, y una tarea sin fecha no recibe aviso ni indicación de que le falte algo.
 - [ ] La señal no depende solo del color: cumple el contraste y la accesibilidad exigidos al resto de la interfaz, y la interacción es operable con teclado.
 - [ ] Se reutilizan los componentes de interfaz del proyecto; los generados no se tocan a mano.
-- [ ] Lint, formato y typecheck del frontend en verde.
+- [x] Lint, formato y typecheck del frontend en verde.
 
 **Depende de:** FS-118.3 y la vista de detalle de la tarea (fuera de FS-118, ver PA-6 del PRD).
 **Nota de riesgo:** no hay ningún componente de fecha en el proyecto; decidir si se trae uno o se resuelve con un campo simple debe hacerse **antes** de empezar. CA-16 y CA-14 rozan entre sí: guardar sin botón y a la vez conservar el valor anterior ante una fecha inválida. Y CA-4 sigue marcado como propuesto: construirlo antes de validarlo puede obligar a rehacerlo.
@@ -229,12 +229,12 @@ Las tallas S/M/L miden dentro de ese techo, no en horas. Talla y riesgo van por 
 **Tipo:** Test · **Talla:** L (condicional) · **Riesgo:** alto
 **Entrega:** los criterios que ningún ticket anterior deja cubiertos, sobre todo los negativos.
 
-- [ ] Cubre CA-1: el flujo de creación no ofrece ni sugiere la fecha.
+- [x] Cubre CA-1: el flujo de creación no ofrece ni sugiere la fecha.
 - [ ] Cubre CA-11 y CA-12 desde fuera: la lista sigue sin mostrar fechas ni marcas, y una tarea sin fecha no genera avisos.
 - [ ] Cubre CA-18: reasignar el responsable no altera la fecha ni la condición de vencida.
-- [ ] Cubre CA-8 recorriendo el camino real del usuario, no solo la regla de dominio.
-- [ ] Cada prueba puede fallar por el motivo que dice cubrir; ninguna pasa por accidente.
-- [ ] Las pruebas aíslan su propio estado, no dependen del orden de ejecución y no dejan residuo entre pasadas.
+- [x] Cubre CA-8 recorriendo el camino real del usuario, no solo la regla de dominio.
+- [x] Cada prueba puede fallar por el motivo que dice cubrir; ninguna pasa por accidente.
+- [x] Las pruebas aíslan su propio estado, no dependen del orden de ejecución y no dejan residuo entre pasadas.
 - [ ] Cada prueba nombra en su título el criterio que verifica.
 
 **Depende de:** FS-118.4.

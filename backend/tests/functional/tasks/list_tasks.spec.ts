@@ -1,5 +1,6 @@
 import { test } from '@japa/runner'
 import testUtils from '@adonisjs/core/services/test_utils'
+import { DateTime } from 'luxon'
 import User from '#models/user'
 import Task from '#models/task'
 
@@ -73,5 +74,38 @@ test.group('Tasks list (GET /api/v1/tasks)', (group) => {
     const response = await client.get('/api/v1/tasks')
 
     response.assertStatus(401)
+  })
+
+  test('CA-11: la lista no muestra la fecha ni la marca de vencida en ninguna tarea', async ({
+    client,
+    assert,
+  }) => {
+    const user = await User.create({
+      fullName: 'Oscar Torres',
+      email: 'oscar@example.com',
+      password: 'password123',
+    })
+    await Task.create({ title: 'Sin fecha', status: 'pending', assigneeId: user.id })
+    await Task.create({
+      title: 'Con fecha futura',
+      status: 'pending',
+      assigneeId: user.id,
+      dueDate: DateTime.fromISO('2999-10-15'),
+    })
+    await Task.create({
+      title: 'Vencida',
+      status: 'pending',
+      assigneeId: user.id,
+      dueDate: DateTime.fromISO('2026-09-01'),
+    })
+
+    const response = await client.get('/api/v1/tasks').loginAs(user)
+
+    response.assertStatus(200)
+    const rows = response.body().data as Record<string, unknown>[]
+    assert.lengthOf(rows, 3)
+    for (const row of rows) {
+      assert.deepEqual(Object.keys(row).sort(), ['assignee', 'createdAt', 'id', 'status', 'title'])
+    }
   })
 })
