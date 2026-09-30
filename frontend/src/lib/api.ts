@@ -200,10 +200,32 @@ export function createTask(
   }).then((response) => response.data)
 }
 
-export function listTasks(token: string): Promise<Task[]> {
-  return request<{ data: Task[] }>('/api/v1/tasks', { token }).then(
+/** La lista de la vista por defecto (sin `status`) o la de un único estado. */
+export function listTasks(token: string, status?: TaskStatus): Promise<Task[]> {
+  const query = status ? `?status=${encodeURIComponent(status)}` : ''
+  return request<{ data: Task[] }>(`/api/v1/tasks${query}`, { token }).then(
     (response) => response.data,
   )
+}
+
+/**
+ * Si el espacio tiene alguna tarea, sabiendo que la vista `emptyView` (`null`
+ * es la vista por defecto) ha llegado vacía. La vista por defecto y «Hecho»
+ * son una partición de todas las tareas, así que solo pide las vistas
+ * complementarias que hacen falta para saberlo.
+ */
+export async function spaceHasTasks(
+  token: string,
+  emptyView: TaskStatus | null,
+): Promise<boolean> {
+  if (emptyView !== null) {
+    const live = await listTasks(token)
+    if (live.length > 0) return true
+    // «Hecho» y la vista por defecto vacías: no queda ninguna tarea.
+    if (emptyView === 'done') return false
+  }
+  const done = await listTasks(token, 'done')
+  return done.length > 0
 }
 
 /**

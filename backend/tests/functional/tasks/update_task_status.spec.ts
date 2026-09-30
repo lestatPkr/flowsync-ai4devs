@@ -33,12 +33,19 @@ function createTask(assignee: User, status: TaskStatus, title = 'Revisar el PR d
 }
 
 /**
- * The `createdAt` is taken from the API itself (GET /api/v1/tasks before the
- * change), so the test does not depend on how Luxon serializes dates.
+ * The `createdAt` is taken from the API itself (the list, before the change),
+ * so the test does not depend on how Luxon serializes dates. It looks in both
+ * views of the list (the default one and «Hecho»), which together hold every
+ * task of the space.
  */
 async function fetchCreatedAt(client: ApiClient, viewer: User, task: Task) {
-  const response = await client.get('/api/v1/tasks').loginAs(viewer)
-  const listed = (response.body().data as TaskResponseBody[]).find((item) => item.id === task.id)
+  const live = await client.get('/api/v1/tasks').loginAs(viewer)
+  const done = await client.get('/api/v1/tasks?status=done').loginAs(viewer)
+  const rows = [
+    ...(live.body().data as TaskResponseBody[]),
+    ...(done.body().data as TaskResponseBody[]),
+  ]
+  const listed = rows.find((item) => item.id === task.id)
   return listed!.createdAt
 }
 

@@ -1,5 +1,5 @@
-import Task from '#models/task'
-import { createTaskValidator, taskReadingDayValidator } from '#validators/task'
+import Task, { LIVE_TASK_STATUSES } from '#models/task'
+import { createTaskValidator, listTasksValidator, taskReadingDayValidator } from '#validators/task'
 import TaskTransformer from '#transformers/task_transformer'
 import TaskDetailTransformer from '#transformers/task_detail_transformer'
 import type { HttpContext } from '@adonisjs/core/http'
@@ -20,11 +20,18 @@ export default class TasksController {
     return serialize(TaskTransformer.transform(task))
   }
 
-  async index({ serialize }: HttpContext) {
-    const tasks = await Task.query()
+  async index({ request, serialize }: HttpContext) {
+    const { status } = await request.validateUsing(listTasksValidator, {
+      data: request.qs(),
+    })
+
+    const query = Task.query()
       .preload('assignee')
       .orderBy('createdAt', 'desc')
       .orderBy('id', 'desc')
+    const tasks = await (status
+      ? query.where('status', status)
+      : query.whereIn('status', [...LIVE_TASK_STATUSES]))
 
     return serialize(TaskTransformer.transform(tasks))
   }

@@ -27,6 +27,15 @@ export const updateTaskStatusValidator = vine.create({
 })
 
 /**
+ * Validator to use on the query string of the list. The status is optional
+ * (without it, the default view) and, when given, must be exactly one of the
+ * three: empty, unknown, other casing or repeated is rejected by the enum.
+ */
+export const listTasksValidator = vine.create({
+  status: vine.enum(TASK_STATUSES).optional(),
+})
+
+/**
  * Validator to use on the body when setting the due date of a task. The key
  * is required: a day sets or changes it, `null` removes it.
  */

@@ -52,12 +52,18 @@ function createTask({
 }
 
 /**
- * The row of a task as `GET /api/v1/tasks` returns it, so the test does not
- * depend on how Luxon serializes dates.
+ * The row of a task as the list returns it, so the test does not depend on
+ * how Luxon serializes dates. It looks in both views of the list (the default
+ * one and «Hecho»), which together hold every task of the space.
  */
 async function fetchListed(client: ApiClient, viewer: User, id: number) {
-  const response = await client.get('/api/v1/tasks').loginAs(viewer)
-  return (response.body().data as TaskResponseBody[]).find((item) => item.id === id)!
+  const live = await client.get('/api/v1/tasks').loginAs(viewer)
+  const done = await client.get('/api/v1/tasks?status=done').loginAs(viewer)
+  const rows = [
+    ...(live.body().data as TaskResponseBody[]),
+    ...(done.body().data as TaskResponseBody[]),
+  ]
+  return rows.find((item) => item.id === id)!
 }
 
 async function fetchCreatedAt(client: ApiClient, viewer: User, id: number) {

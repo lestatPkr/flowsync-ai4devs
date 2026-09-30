@@ -7,6 +7,12 @@ import type { DateTime } from 'luxon'
 export const TASK_STATUSES = ['pending', 'in_progress', 'done'] as const
 export type TaskStatus = (typeof TASK_STATUSES)[number]
 
+/** The statuses of the default view of the list: everything that is not done (RF-21). */
+export const LIVE_TASK_STATUSES = [
+  'pending',
+  'in_progress',
+] as const satisfies readonly TaskStatus[]
+
 export default class Task extends TaskSchema {
   declare status: TaskStatus
 
