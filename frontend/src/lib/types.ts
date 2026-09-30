@@ -43,3 +43,14 @@ export type Task = {
   assignee: Pick<User, 'id' | 'fullName' | 'initials'>
   createdAt: string
 }
+
+/**
+ * Espejo de `TaskDetailTransformer` del backend (app/transformers/task_detail_transformer.ts):
+ * la tarea abierta. La lista (`Task`) no lleva ni la fecha ni el vencimiento.
+ */
+export type TaskDetail = Task & {
+  /** Día natural `AAAA-MM-DD`, o `null` si la tarea no tiene fecha. */
+  dueDate: string | null
+  /** Lo decide el backend con el día de hoy de quien mira; el frontend no lo calcula. */
+  isOverdue: boolean
+}

@@ -1,6 +1,7 @@
 import { test } from '@japa/runner'
 import type { ApiClient } from '@japa/api-client'
 import testUtils from '@adonisjs/core/services/test_utils'
+import { DateTime } from 'luxon'
 import User from '#models/user'
 import Task, { type TaskStatus } from '#models/task'
 
@@ -32,12 +33,19 @@ function createTask({
   title = 'Revisar el PR de auth',
   status = 'pending',
   assigneeId,
+  dueDate = null,
 }: {
   title?: string
   status?: TaskStatus
   assigneeId: number
+  dueDate?: string | null
 }) {
-  return Task.create({ title, status, assigneeId })
+  return Task.create({
+    title,
+    status,
+    assigneeId,
+    dueDate: dueDate ? DateTime.fromISO(dueDate) : null,
+  })
 }
 
 /**
@@ -54,7 +62,16 @@ async function fetchCreatedAt(client: ApiClient, viewer: User, id: number) {
   return listed.createdAt
 }
 
-function expectedBody(task: Task, assignee: User, createdAt: string) {
+/**
+ * FS-118 adds `dueDate` and `isOverdue` to the detail (and only to the detail):
+ * a task without a due date is never overdue.
+ */
+function expectedBody(
+  task: Task,
+  assignee: User,
+  createdAt: string,
+  { dueDate = null, isOverdue = false }: { dueDate?: string | null; isOverdue?: boolean } = {}
+) {
   return {
     data: {
       id: task.id,
@@ -62,6 +79,8 @@ function expectedBody(task: Task, assignee: User, createdAt: string) {
       status: task.status,
       assignee: { id: assignee.id, fullName: assignee.fullName, initials: assignee.initials },
       createdAt,
+      dueDate,
+      isOverdue,
     },
   }
 }
@@ -130,7 +149,10 @@ test.group('Tasks show (GET /api/v1/tasks/:id)', (group) => {
     assert.deepEqual(await snapshot(task.id), before)
   })
 
-  test('el detalle coincide con la fila de esa tarea en la lista', async ({ client, assert }) => {
+  test('el detalle es la fila de la lista más dueDate e isOverdue, que la fila no lleva', async ({
+    client,
+    assert,
+  }) => {
     const oscar = await createOscar()
     const ana = await createAna()
     await createTask({ title: 'Otra', assigneeId: oscar.id })
@@ -140,7 +162,24 @@ test.group('Tasks show (GET /api/v1/tasks/:id)', (group) => {
     const response = await client.get(`/api/v1/tasks/${task.id}`).loginAs(oscar)
 
     response.assertStatus(200)
-    assert.deepEqual(response.body().data, listed)
+    assert.deepEqual(response.body().data, { ...listed, dueDate: null, isOverdue: false })
+    assert.notProperty(listed, 'dueDate')
+    assert.notProperty(listed, 'isOverdue')
+  })
+
+  test('CA-2: al abrir una tarea con fecha se ve su fecha', async ({ client, assert }) => {
+    const oscar = await createOscar()
+    // Far enough in the future to never be overdue, whatever the real date.
+    const task = await createTask({ assigneeId: oscar.id, dueDate: '2999-10-15' })
+    const createdAt = await fetchCreatedAt(client, oscar, task.id)
+
+    const response = await client.get(`/api/v1/tasks/${task.id}`).loginAs(oscar)
+
+    response.assertStatus(200)
+    assert.deepEqual(
+      response.body(),
+      expectedBody(task, oscar, createdAt, { dueDate: '2999-10-15', isOverdue: false })
+    )
   })
 
   test('abre una tarea en «Hecho» como cualquier otra', async ({ client, assert }) => {

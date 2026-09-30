@@ -54,6 +54,12 @@ const routes = {
     tokens: [{"old":"/api/v1/tasks/:id/status","type":0,"val":"api","end":""},{"old":"/api/v1/tasks/:id/status","type":0,"val":"v1","end":""},{"old":"/api/v1/tasks/:id/status","type":0,"val":"tasks","end":""},{"old":"/api/v1/tasks/:id/status","type":1,"val":"id","end":""},{"old":"/api/v1/tasks/:id/status","type":0,"val":"status","end":""}],
     types: placeholder as Registry['tasks.task_statuses.update']['types'],
   },
+  'tasks.task_due_dates.update': {
+    methods: ["PUT"],
+    pattern: '/api/v1/tasks/:id/due-date',
+    tokens: [{"old":"/api/v1/tasks/:id/due-date","type":0,"val":"api","end":""},{"old":"/api/v1/tasks/:id/due-date","type":0,"val":"v1","end":""},{"old":"/api/v1/tasks/:id/due-date","type":0,"val":"tasks","end":""},{"old":"/api/v1/tasks/:id/due-date","type":1,"val":"id","end":""},{"old":"/api/v1/tasks/:id/due-date","type":0,"val":"due-date","end":""}],
+    types: placeholder as Registry['tasks.task_due_dates.update']['types'],
+  },
 } as const satisfies Record<string, AdonisEndpoint>
 
 export { routes }

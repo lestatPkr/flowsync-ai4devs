@@ -40,6 +40,7 @@ router
         router.post('/', [controllers.Tasks, 'store'])
         router.get(':id', [controllers.Tasks, 'show'])
         router.patch(':id/status', [controllers.TaskStatuses, 'update'])
+        router.put(':id/due-date', [controllers.TaskDueDates, 'update'])
       })
       .prefix('tasks')
       .as('tasks')

@@ -100,4 +100,32 @@ test.group('Tasks create (POST /api/v1/tasks)', (group) => {
 
     response.assertStatus(401)
   })
+
+  test('CA-1: crear una tarea la deja sin fecha aunque el cuerpo traiga una', async ({
+    client,
+    assert,
+  }) => {
+    const user = await User.create({
+      fullName: 'Oscar Torres',
+      email: 'oscar@example.com',
+      password: 'password123',
+    })
+
+    const response = await client
+      .post('/api/v1/tasks')
+      .loginAs(user)
+      .json({ title: 'Con fecha colada', dueDate: '2026-10-15' })
+
+    response.assertStatus(201)
+    const created = response.body().data as TaskResponseBody
+    const stored = await Task.findOrFail(created.id)
+    assert.isNull(stored.dueDate)
+
+    const detail = await client
+      .get(`/api/v1/tasks/${created.id}`)
+      .qs({ today: '2026-09-30' })
+      .loginAs(user)
+    detail.assertStatus(200)
+    assert.containsSubset(detail.body().data, { dueDate: null, isOverdue: false })
+  })
 })
