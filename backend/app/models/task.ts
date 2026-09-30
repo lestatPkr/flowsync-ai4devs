@@ -29,6 +29,6 @@ export default class Task extends TaskSchema {
     if (this.dueDate === null || this.status === 'done') {
       return false
     }
-    return this.dueDate.toISODate()! <= today.toISODate()!
+    return this.dueDate.toISODate()! < today.toISODate()!
   }
 }

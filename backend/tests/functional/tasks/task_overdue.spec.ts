@@ -131,6 +131,7 @@ test.group('Tasks overdue (GET /api/v1/tasks/:id?today=)', (group) => {
   test('borde «{name}» leído el {today}: vencida = {isOverdue}')
     .with<{ name: string; dueDate?: string; today: string; isOverdue: boolean }[]>([
       { name: 'día anterior', dueDate: '2026-09-29', today: TODAY, isOverdue: true },
+      { name: 'mismo día', dueDate: '2026-09-30', today: TODAY, isOverdue: false },
       { name: 'día posterior', dueDate: '2026-10-01', today: TODAY, isOverdue: false },
       { name: 'sin fecha', today: TODAY, isOverdue: false },
     ])
@@ -203,6 +204,26 @@ test.group('Tasks overdue (GET /api/v1/tasks/:id?today=)', (group) => {
     )
   })
 
+  test('una tarea hecha «{name}» no está vencida y conserva su fecha')
+    .with<{ name: string; dueDate?: string }[]>([
+      { name: 'mismo día', dueDate: '2026-09-30' },
+      { name: 'día posterior', dueDate: '2026-10-01' },
+      { name: 'sin fecha' },
+    ])
+    .run(async ({ client, assert }, { dueDate }) => {
+      const oscar = await createOscar()
+      const task = await createTask({ status: 'done', assigneeId: oscar.id, dueDate })
+      const createdAt = await fetchCreatedAt(client, oscar, task.id)
+
+      const response = await getTask(client, task.id).qs({ today: TODAY }).loginAs(oscar)
+
+      response.assertStatus(200)
+      assert.deepEqual(
+        response.body(),
+        expectedDetail(task, oscar, createdAt, { dueDate: dueDate ?? null, isOverdue: false })
+      )
+    })
+
   test('la misma tarea, leída con dos días de referencia distintos, da dos lecturas correctas', async ({
     client,
     assert,
@@ -217,7 +238,7 @@ test.group('Tasks overdue (GET /api/v1/tasks/:id?today=)', (group) => {
     const createdAt = await fetchCreatedAt(client, oscar, task.id)
 
     const fromMadrid = await getTask(client, task.id).qs({ today: '2026-09-30' }).loginAs(oscar)
-    const fromMexico = await getTask(client, task.id).qs({ today: '2026-09-28' }).loginAs(ana)
+    const fromMexico = await getTask(client, task.id).qs({ today: '2026-09-29' }).loginAs(ana)
 
     fromMadrid.assertStatus(200)
     fromMexico.assertStatus(200)
@@ -245,7 +266,7 @@ test.group('Tasks overdue (GET /api/v1/tasks/:id?today=)', (group) => {
     const createdAt = await fetchCreatedAt(client, oscar, task.id)
     const before = await snapshot(task.id)
 
-    const onTheDay = await getTask(client, task.id).qs({ today: '2026-09-29' }).loginAs(oscar)
+    const onTheDay = await getTask(client, task.id).qs({ today: '2026-09-30' }).loginAs(oscar)
     const between = await snapshot(task.id)
     const nextDay = await getTask(client, task.id).qs({ today: '2026-10-01' }).loginAs(oscar)
 
