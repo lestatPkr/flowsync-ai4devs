@@ -79,7 +79,11 @@ export function BoardColumn({
     >
       <h2
         id={titleId}
-        className="flex items-center gap-2 text-lg font-semibold"
+        className={cn(
+          'flex items-center gap-2 text-lg font-semibold',
+          status === 'done' &&
+            'rounded-md bg-success px-2 py-1 text-success-foreground',
+        )}
       >
         {STATUS_LABELS[status]}
         <span

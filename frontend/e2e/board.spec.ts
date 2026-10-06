@@ -212,6 +212,37 @@ test.describe('US1 · ver el tablero y abrir una tarea', () => {
     }
   })
 
+  test('DESIGN · DADO un tablero cargado, CUANDO mira las cabeceras, ENTONCES la de «Hecho» se distingue sobre el token `success` y las otras dos no', async ({
+    page,
+    request,
+  }) => {
+    const member = await signUp(request, 'Oscar Tablero')
+    await signIn(page, member)
+
+    await openBoard(page)
+
+    // El color que resuelve `var(--success)`, leído de una sonda: así el test
+    // no repite el valor del token.
+    const success = await page.evaluate(() => {
+      const probe = document.createElement('div')
+      probe.style.backgroundColor = 'var(--success)'
+      document.body.append(probe)
+      const color = getComputedStyle(probe).backgroundColor
+      probe.remove()
+      return color
+    })
+    expect(success, 'el token --success existe').not.toBe('rgba(0, 0, 0, 0)')
+
+    const background = (status: Status) =>
+      column(page, status)
+        .getByRole('heading', { level: 2 })
+        .evaluate((heading) => getComputedStyle(heading).backgroundColor)
+
+    expect(await background('done')).toBe(success)
+    expect(await background('pending')).not.toBe(success)
+    expect(await background('in_progress')).not.toBe(success)
+  })
+
   test('US1-4 · DADO un tablero cargado, CUANDO mira una tarjeta, ENTONCES ve título, responsable y estado, y nada de prioridad, foto, vencimiento ni marca de vencida', async ({
     page,
     request,

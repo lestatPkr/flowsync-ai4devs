@@ -16,6 +16,8 @@ colors:
   accent: "#f5f5f5"
   accent-foreground: "#171717"
   destructive: "#e7000b"
+  success: "#008236"
+  success-foreground: "#fafafa"
   border: "#e5e5e5"
   input: "#e5e5e5"
   ring: "#a1a1a1"
@@ -85,6 +87,10 @@ components:
   alert-destructive:
     backgroundColor: "{colors.card}"
     textColor: "{colors.destructive}"
+  column-header-done:
+    backgroundColor: "{colors.success}"
+    textColor: "{colors.success-foreground}"
+    rounded: "{rounded.md}"
   divider:
     backgroundColor: "{colors.border}"
     height: 1px
@@ -113,9 +119,10 @@ Tokens **semánticos**, nunca de paleta. En el código se usan como utilidades d
 - **primary / primary-foreground**: la acción principal de cada pantalla (una sola por vista).
 - **secondary, muted, accent**: superficies de apoyo; `muted-foreground` para metadatos (responsable, fechas), **siempre sobre `card` o `background`**: sobre `muted` se queda en 4,35:1 y no llega al AA (lo dice `npx @google/design.md lint`).
 - **destructive**: errores y acciones destructivas. También «vencida».
+- **success / success-foreground**: el estado «hecho» (hoy, la cabecera de la columna «Hecho» del tablero). `success` pasa el AA también como texto sobre `card` (4,9:1 en claro, 10:1 en oscuro), y `success-foreground` sobre `success` (4,7:1 y 10:1).
 - **border, input, ring**: bordes, campos y anillo de foco (`focus-visible:ring-[3px] ring-ring/50`).
 
-Un color nuevo (por ejemplo, un verde para «hecho») **no se escribe en un componente**: se añade como token en `index.css` (claro y oscuro, más su línea en `@theme inline`) y aquí, en el mismo commit.
+Un color nuevo (como lo fue `success`, el verde de «hecho») **no se escribe en un componente**: se añade como token en `index.css` (claro y oscuro, más su línea en `@theme inline`) y aquí, en el mismo commit.
 
 ## Typography
 
@@ -141,7 +148,7 @@ Los componentes base son los de **shadcn/ui** en `frontend/src/components/ui/` (
 - **Control de estado**: `<select>` nativo con las clases de `Input` (`TaskStatusSelect`); cambia en 2 interacciones, optimista con reconciliación.
 - **Vacíos**: `Card` centrada con título y una frase que dice qué hacer.
 - **Errores**: `Alert variant="destructive"` con una frase en castellano y, si tiene sentido, un botón «Reintentar».
-- **Columna con recuento** (tablero): una región `Card` con nombre, cuyo `h2` lleva el estado y una píldora `bg-secondary`/`text-secondary-foreground` con el número (oculta al lector, que oye el recuento en un texto `sr-only`). Sin tarjetas, una frase en `text-muted-foreground`, nunca en blanco. Por debajo de `md` las columnas se apilan en el mismo orden.
+- **Columna con recuento** (tablero): una región `Card` con nombre, cuyo `h2` lleva el estado y una píldora `bg-secondary`/`text-secondary-foreground` con el número (oculta al lector, que oye el recuento en un texto `sr-only`). La cabecera de «Hecho» se distingue en verde (`column-header-done`): banda `bg-success`/`text-success-foreground` con `rounded-md`; las otras dos, sin fondo. Sin tarjetas, una frase en `text-muted-foreground`, nunca en blanco. Por debajo de `md` las columnas se apilan en el mismo orden.
 - **Destino al arrastrar**: la columna que admite la tarjeta se marca con `bg-accent` + `border-ring` mientras está encima, y la tarjeta arrastrada baja a `opacity-50`. El arrastre es siempre un atajo: lo mismo se hace con el control de estado, por teclado.
 
 ## Do's and Don'ts
