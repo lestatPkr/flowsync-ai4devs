@@ -4,10 +4,10 @@ import type { TaskStatus } from '@/lib/types'
 import type { TaskFilterContext } from '@/routes/use-task-filter'
 
 /**
- * Guarda el filtro de la lista mientras se va y se vuelve de una tarea, y solo
- * entonces: vive en memoria, nunca en la URL ni en el almacenamiento, así que
- * recargar, cerrar sesión o salir a otra pantalla lo devuelven a la vista por
- * defecto.
+ * Guarda el filtro de la lista mientras se va y se vuelve de una tarea o del
+ * tablero, y solo entonces: vive en memoria, nunca en la URL ni en el
+ * almacenamiento, así que recargar, cerrar sesión o salir a otra pantalla (p.
+ * ej. `/profile`) lo devuelven a la vista por defecto.
  */
 export function TasksLayout() {
   const [filter, setFilter] = useState<TaskStatus | null>(null)

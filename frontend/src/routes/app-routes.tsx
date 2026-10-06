@@ -4,6 +4,7 @@ import { RegisterPage } from '@/pages/register-page'
 import { ProfilePage } from '@/pages/profile-page'
 import { TasksPage } from '@/pages/tasks-page'
 import { TaskPage } from '@/pages/task-page'
+import { BoardPage } from '@/pages/board-page'
 import { ProtectedRoute } from '@/routes/protected-route'
 import { PublicOnlyRoute } from '@/routes/public-only-route'
 import { TasksLayout } from '@/routes/tasks-layout'
@@ -19,6 +20,7 @@ export function AppRoutes() {
       <Route element={<ProtectedRoute />}>
         <Route element={<TasksLayout />}>
           <Route path="/tasks" element={<TasksPage />} />
+          <Route path="/tasks/board" element={<BoardPage />} />
           <Route path="/tasks/:id" element={<TaskPage />} />
         </Route>
         <Route path="/profile" element={<ProfilePage />} />

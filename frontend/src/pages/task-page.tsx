@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { ChangeEvent, FocusEvent } from 'react'
-import { Link, useParams } from 'react-router'
+import { Link, useLocation, useParams } from 'react-router'
 import { ArrowLeftIcon } from 'lucide-react'
 import { useAuth } from '@/auth/use-auth'
 import { ApiError, getTask, INVALID_DATE_MESSAGE, setDueDate } from '@/lib/api'
@@ -49,15 +49,20 @@ type BackToListProps = {
   focusTaskId?: number
 }
 
+/** Vuelve adonde se abrió la tarea: al tablero si se llegó desde él, si no a la lista. */
 function BackToList({ focusTaskId }: BackToListProps) {
+  const location = useLocation()
+  const fromBoard =
+    (location.state as { from?: string } | null)?.from === 'board'
+
   return (
     <Button variant="link" asChild className="self-start px-0">
       <Link
-        to="/tasks"
+        to={fromBoard ? '/tasks/board' : '/tasks'}
         state={focusTaskId === undefined ? undefined : { focusTaskId }}
       >
         <ArrowLeftIcon />
-        Volver a la lista
+        {fromBoard ? 'Volver al tablero' : 'Volver a la lista'}
       </Link>
     </Button>
   )

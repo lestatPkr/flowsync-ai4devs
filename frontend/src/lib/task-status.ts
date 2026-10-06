@@ -1,4 +1,4 @@
-import type { TaskStatus } from '@/lib/types'
+import type { Task, TaskStatus } from '@/lib/types'
 
 export const STATUS_LABELS: Record<TaskStatus, string> = {
   pending: 'Pendiente',
@@ -14,3 +14,8 @@ export const filterButtonId = (status: TaskStatus) => `task-filter-${status}`
  * Espejo de `LIVE_TASK_STATUSES` del backend (app/models/task.ts).
  */
 export const LIVE_STATUSES: readonly TaskStatus[] = ['pending', 'in_progress']
+
+/** El orden de la lista y de cada columna del tablero: `createdAt` desc y, a igualdad, `id` desc. */
+export function byListOrder(a: Task, b: Task): number {
+  return Date.parse(b.createdAt) - Date.parse(a.createdAt) || b.id - a.id
+}

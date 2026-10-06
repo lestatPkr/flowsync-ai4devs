@@ -65,3 +65,69 @@ export async function expectNoSeriousA11yViolations(page: Page) {
     serious.map((violation) => `${violation.id}: ${violation.help}`),
   ).toEqual([])
 }
+
+/** Deja una tarea en un estado por la API, como ese miembro. */
+export async function setTaskStatus(
+  request: APIRequestContext,
+  member: Member,
+  taskId: number,
+  status: 'pending' | 'in_progress' | 'done',
+) {
+  const response = await request.patch(
+    `${API_URL}/api/v1/tasks/${taskId}/status`,
+    {
+      data: { status },
+      headers: {
+        Accept: 'application/json',
+        Authorization: `Bearer ${member.token}`,
+      },
+    },
+  )
+  expect(response.ok()).toBe(true)
+}
+
+/** Pone la fecha de vencimiento ('AAAA-MM-DD') de una tarea por la API. */
+export async function setTaskDueDate(
+  request: APIRequestContext,
+  member: Member,
+  taskId: number,
+  day: string,
+) {
+  const response = await request.put(
+    `${API_URL}/api/v1/tasks/${taskId}/due-date`,
+    {
+      data: { dueDate: day },
+      headers: {
+        Accept: 'application/json',
+        Authorization: `Bearer ${member.token}`,
+      },
+    },
+  )
+  expect(response.ok()).toBe(true)
+}
+
+/** Si es la lectura de un estado de la lista: `GET /api/v1/tasks?status=…`. */
+export const isTasksByStatusUrl = (url: URL) =>
+  url.pathname === '/api/v1/tasks' && url.searchParams.has('status')
+
+/**
+ * Acota el tablero a las tareas cuyo título empieza por `prefix`: intercepta
+ * GET /api/v1/tasks?status=*, hace la petición real (route.fetch) y responde
+ * solo con esas filas. Para los escenarios que necesitan columnas vacías en una
+ * BD compartida. Los PATCH no se tocan.
+ */
+export async function scopeBoardTo(page: Page, prefix: string) {
+  await page.route(isTasksByStatusUrl, async (route) => {
+    if (route.request().method() !== 'GET') return route.fallback()
+    const response = await route.fetch()
+    if (!response.ok()) return route.fulfill({ response })
+    const body = (await response.json()) as { data: { title: string }[] }
+    await route.fulfill({
+      response,
+      json: {
+        ...body,
+        data: body.data.filter((task) => task.title.startsWith(prefix)),
+      },
+    })
+  })
+}

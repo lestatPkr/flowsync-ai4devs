@@ -209,6 +209,35 @@ export function listTasks(token: string, status?: TaskStatus): Promise<Task[]> {
 }
 
 /**
+ * Las tareas del tablero: una lectura por estado, en paralelo. Falla entera si
+ * falla cualquiera (nunca columnas a medias) y no repite una tarea que llegue
+ * en dos lecturas (se queda la primera, en el orden de las columnas).
+ */
+export async function listTasksByStatus(
+  token: string,
+): Promise<Record<TaskStatus, Task[]>> {
+  const [pending, inProgress, done] = await Promise.all([
+    listTasks(token, 'pending'),
+    listTasks(token, 'in_progress'),
+    listTasks(token, 'done'),
+  ])
+
+  const seen = new Set<number>()
+  const firstAppearance = (tasks: Task[]) =>
+    tasks.filter((task) => {
+      if (seen.has(task.id)) return false
+      seen.add(task.id)
+      return true
+    })
+
+  return {
+    pending: firstAppearance(pending),
+    in_progress: firstAppearance(inProgress),
+    done: firstAppearance(done),
+  }
+}
+
+/**
  * Si el espacio tiene alguna tarea, sabiendo que la vista `emptyView` (`null`
  * es la vista por defecto) ha llegado vacía. La vista por defecto y «Hecho»
  * son una partición de todas las tareas, así que solo pide las vistas

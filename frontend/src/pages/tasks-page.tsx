@@ -1,8 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
-import { useLocation } from 'react-router'
+import { Link, useLocation } from 'react-router'
+import { Columns3Icon } from 'lucide-react'
 import { useAuth } from '@/auth/use-auth'
 import { ApiError, listTasks, spaceHasTasks } from '@/lib/api'
-import { filterButtonId, LIVE_STATUSES, STATUS_LABELS } from '@/lib/task-status'
+import {
+  byListOrder,
+  filterButtonId,
+  LIVE_STATUSES,
+  STATUS_LABELS,
+} from '@/lib/task-status'
 import { useTaskFilter } from '@/routes/use-task-filter'
 import { TaskForm } from '@/components/tasks/task-form'
 import { TaskList } from '@/components/tasks/task-list'
@@ -39,11 +45,6 @@ const EMPTY_TITLE_ID = 'task-list-empty-title'
 /** Si una tarea en ese estado entra en lo que se está viendo. */
 function fitsView(status: TaskStatus, filter: TaskStatus | null) {
   return filter === null ? LIVE_STATUSES.includes(status) : status === filter
-}
-
-/** El orden de la lista: `createdAt` desc y, a igualdad, `id` desc. */
-function byListOrder(a: Task, b: Task) {
-  return Date.parse(b.createdAt) - Date.parse(a.createdAt) || b.id - a.id
 }
 
 export function TasksPage() {
@@ -289,7 +290,15 @@ export function TasksPage() {
   return (
     <div className="bg-muted/40 min-h-svh p-6">
       <div className="mx-auto flex max-w-2xl flex-col gap-6">
-        <h1 className="text-2xl font-semibold">Tareas</h1>
+        <div className="flex items-center justify-between gap-4">
+          <h1 className="text-2xl font-semibold">Tareas</h1>
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/tasks/board">
+              <Columns3Icon aria-hidden="true" />
+              Tablero
+            </Link>
+          </Button>
+        </div>
 
         <TaskForm token={token} onCreated={handleCreated} />
 
