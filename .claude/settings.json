@@ -28,6 +28,18 @@
             "statusMessage": "Definition of Done: suite del backend (y cobertura si es un PR)...",
             "timeout": 120,
             "command": "node \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/guard-tests.mjs"
+          },
+          {
+            "type": "command",
+            "statusMessage": "Comprobando la valla del diseño (DESIGN.md + tokens)...",
+            "timeout": 10,
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/guard-design.sh"
+          },
+          {
+            "type": "command",
+            "statusMessage": "Definition of Done del frontend: build + lint (y e2e si es un PR)...",
+            "timeout": 300,
+            "command": "node \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/guard-frontend.mjs"
           }
         ]
       }
