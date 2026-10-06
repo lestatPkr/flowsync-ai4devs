@@ -1,5 +1,27 @@
 <!--
 Sync Impact Report
+- Version change: 1.1.0 → 1.2.0 (MINOR: se amplía materialmente el Principio II y se añade el
+  Principio VI)
+- Principio II ampliado con un párrafo para el frontend: la Definition of Done de una historia de
+  interfaz es su matriz de comportamiento en e2e (Playwright, `frontend/e2e/`): un test por
+  escenario de aceptación, titulado como el escenario, escrito antes y visto en rojo; siempre con
+  el camino solo con teclado y axe sin violaciones graves ni críticas de WCAG 2.1 A/AA
+  (`expectNoSeriousA11yViolations`); `npm run test:e2e` en verde para abrir un PR; en el frontend
+  no hay suelo de cobertura.
+- Principio añadido: VI. Una sola fuente de diseño (`DESIGN.md` y los tokens de
+  `frontend/src/index.css` cambian juntos; solo tokens semánticos; `components/ui/` lo genera
+  shadcn y no se edita; un prototipo es entrada de requisitos, no de estilos).
+- Principio IV: las pantallas nuevas remiten a `DESIGN.md` en vez de al "estilo visual existente".
+- Principios I, III y V: sin cambios. Governance: sin cambios.
+- Plantillas dependientes: sin cambios. Ninguna de `.specify/templates/` nombra los principios
+  (`plan-template.md` solo tiene un "Constitution Check" genérico que se rellena desde aquí).
+- Fuera de la constitución: `CLAUDE.md` gana, al principio de «## Frontend», una línea que remite a
+  `DESIGN.md` como fuente única del diseño (Principio VI).
+- Follow-up TODOs: el hook de Definition of Done (`.claude/hooks/guard-tests.mjs`) solo corre la
+  suite del backend; que obligue también `npm run test:e2e` antes de abrir un PR se instala aparte.
+-->
+<!--
+Sync Impact Report (1.1.0)
 - Version change: 1.0.0 → 1.1.0 (MINOR: se amplía materialmente el Principio II)
 - Principio II ampliado con: la matriz de comportamiento (camino feliz / 422 / 401 / 404) como
   Definition of Done de todo endpoint; test que falla antes y pasa después para todo cambio de
@@ -67,6 +89,14 @@ La cobertura de líneas de `backend/app/` (`npm run test:coverage`) NO DEBE baja
 el harness; el suelo solo sube, y subirlo es un PR aparte. La cobertura es respaldo, nunca el listón:
 el listón es la matriz.
 
+En el frontend, la Definition of Done de una historia de interfaz es su **matriz de comportamiento
+en e2e** (Playwright, en `frontend/e2e/`): un test por escenario de aceptación, titulado como el
+escenario, escrito antes que la implementación y visto en rojo. La matriz incluye siempre el camino
+solo con teclado y el chequeo de accesibilidad con axe sin violaciones graves ni críticas de
+WCAG 2.1 A/AA (`expectNoSeriousA11yViolations` de `frontend/e2e/support.ts`). `npm run test:e2e`
+en `frontend/` DEBE estar en verde para abrir un PR. En el frontend no hay suelo de cobertura: el
+listón es la matriz.
+
 **Razón**: sin tests funcionales la spec es solo prosa; el test es lo único que verifica que el
 criterio de aceptación se cumple y sigue cumpliéndose. Y una suite verde con aserciones débiles no
 es seguridad: es silencio. La matriz obliga a mirar los caminos que se pudren sin ruido (validación,
@@ -86,8 +116,9 @@ tarea, plan o prompt puede ampliarlo sin pasar antes por una revisión explícit
 
 AdonisJS 7 + Lucid + SQLite en `backend/`, React 19 + Vite en `frontend/`; los comandos se
 ejecutan desde cada carpeta, no desde la raíz. El frontend se formatea con Prettier (hook del
-harness). Las pantallas nuevas se pliegan al estilo visual existente (R-8): mismos componentes de
-`frontend/src/components/ui/`, ningún rediseño. Migraciones para cualquier cambio de esquema.
+harness). Las pantallas nuevas se pliegan al diseño de `DESIGN.md` (R-8, Principio VI): mismos
+componentes de `frontend/src/components/ui/`, ningún rediseño. Migraciones para cualquier cambio de
+esquema.
 
 **Razón**: seguir las convenciones ya establecidas en `CLAUDE.md` evita divergencias de stack,
 estilo visual inconsistente y cambios de esquema fuera del flujo de migraciones que genera
@@ -103,6 +134,22 @@ se construye. Un cambio que no cabe en un PR revisable se parte.
 **Razón**: un loop fijo y una spec que viaja con el PR hacen que cada cambio sea trazable,
 revisable de forma aislada y reproducible por cualquiera que retome el trabajo.
 
+### VI. Una sola fuente de diseño
+
+`DESIGN.md` en la raíz del repo (formato abierto de Google Labs) y los tokens de
+`frontend/src/index.css` son la única fuente del diseño y cambian juntos, en el mismo commit. Los
+componentes usan solo tokens semánticos: nada de hex, `rgb()`, `oklch()`, valores arbitrarios de
+color de Tailwind ni su paleta por defecto. `frontend/src/components/ui/` lo genera shadcn y no se
+edita: se compone por fuera. Un prototipo (Stitch, Figma) es una entrada de requisitos, no de
+estilos: sus colores y componentes se traducen a los del design system o no entran.
+
+**Razón**: dos fuentes de diseño que pueden cambiar por separado acaban diciendo cosas distintas, y
+la interfaz deriva pantalla a pantalla sin que nadie lo decida. Un token semántico cambia el tema
+(claro, oscuro, contraste) en un solo sitio; un color literal es una excepción que nadie mantiene.
+Lo que se edita dentro de lo generado por shadcn se pierde en la siguiente regeneración. Y copiar
+los estilos de un prototipo importa decisiones visuales de otra herramienta sin pasar por el
+sistema.
+
 ## Governance
 
 Esta constitución prevalece sobre `CLAUDE.md`/`AGENTS.md` cuando se contradicen. Cambiarla es un
@@ -116,4 +163,4 @@ PATCH ante aclaraciones o correcciones de redacción sin cambio semántico.
 se ajusta la spec, el plan o las tareas, nunca el principio. Toda revisión del
 `adversarial-reviewer` contrasta el cambio contra esta constitución y contra `BOUNDARIES.md`.
 
-**Version**: 1.1.0 | **Ratified**: 2026-09-23 | **Last Amended**: 2026-09-29
+**Version**: 1.2.0 | **Ratified**: 2026-09-23 | **Last Amended**: 2026-10-06
