@@ -349,7 +349,8 @@ test.describe('US1 · ver el tablero y abrir una tarea', () => {
     try {
       const fresh = await context.newPage()
       await signIn(fresh, member)
-      await fresh.goto('http://localhost:5173/')
+      // La misma URL base que el resto (playwright.config.ts), no un puerto fijo.
+      await fresh.goto(new URL('/', page.url()).href)
       await expect(fresh).toHaveURL(/\/tasks$/)
       await expect(
         fresh.getByRole('heading', { name: 'Tareas', level: 1 }),
