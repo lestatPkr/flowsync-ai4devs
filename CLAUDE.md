@@ -101,6 +101,11 @@ Rutas actuales (`start/routes.ts`), todas bajo `/api/v1`:
 | GET | `/api/v1/account/profile` | `ProfileController.show` | sí |
 | POST | `/api/v1/account/logout` | `AccessTokensController.destroy` | sí |
 
+### Logs
+
+- Una línea JSON por petición (`request_id`, `method`, `route` como patrón, `status`, `duration_ms`; middleware `request_log_middleware`) y los 5xx con mensaje y pila (`app/exceptions/handler.ts`) van a stdout y a `backend/tmp/logs/app.log` (JSON, ignorado por git); los 4xx no dejan traza de error. Cada respuesta lleva `X-Request-Id`.
+- Nunca se registra (RNF-7, R9 del modelo de amenazas): id de usuario, email, nombre, token, cabecera `Authorization` ni cuerpo de la petición. Tests en `tests/functional/observability/`.
+
 ### Validación
 
 VineJS 4 en `app/validators/`, consumido con `request.validateUsing(validator)`. Nota de API: se usa `vine.create({...})` (no `vine.compile`), y hay reglas como `.sameAs('password')` y `.unique({ table, column })` sobre el schema. Los validadores comparten builders de campo (`email()`, `password()`) en vez de repetir reglas.

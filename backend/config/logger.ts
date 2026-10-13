@@ -1,6 +1,6 @@
 import env from '#start/env'
 import app from '@adonisjs/core/services/app'
-import { defineConfig, syncDestination, targets } from '@adonisjs/core/logger'
+import { defineConfig, targets } from '@adonisjs/core/logger'
 
 const loggerConfig = defineConfig({
   /**
@@ -26,15 +26,17 @@ const loggerConfig = defineConfig({
       level: env.get('LOG_LEVEL'),
 
       /**
-       * Use sync destination in non-production for immediate flush.
-       */
-      destination: !app.inProduction ? await syncDestination() : undefined,
-
-      /**
-       * Configure where logs are written.
+       * Configure where logs are written: stdout (pretty in development,
+       * JSON in production, muted in tests to keep the reporter readable)
+       * plus one JSON line per record in tmp/logs/app.log, in every
+       * environment.
        */
       transport: {
-        targets: [targets.file({ destination: 1 })],
+        targets: targets()
+          .pushIf(app.inDev, targets.pretty())
+          .pushIf(app.inProduction, targets.file({ destination: 1 }))
+          .push(targets.file({ destination: app.tmpPath('logs/app.log'), mkdir: true }))
+          .toArray(),
       },
     },
   },
