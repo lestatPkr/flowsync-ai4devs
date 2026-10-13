@@ -40,6 +40,12 @@
             "statusMessage": "Definition of Done del frontend: build + lint (y e2e si es un PR)...",
             "timeout": 300,
             "command": "node \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/guard-frontend.mjs"
+          },
+          {
+            "type": "command",
+            "statusMessage": "Jev: ¿es seguro este comando para lo que se ha pedido?",
+            "timeout": 15,
+            "command": "node \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/guard-jev.mjs"
           }
         ]
       }
