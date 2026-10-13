@@ -1,6 +1,6 @@
 # Contract: `DELETE /api/v1/tasks/:id`
 
-Cubre, en el lado del servidor, FR-001, FR-005, FR-013, FR-014, FR-017 a FR-019 y FR-021 a FR-023, y las mitigaciones R1–R4, R6 (la parte del API), R7, R9 y R10 del [modelo de amenazas](../../../docs/security/threat-model-e2-10.md). Vive **dentro** del grupo `tasks` existente de `backend/start/routes.ts`, protegido por `middleware.auth()` (guard `api`). Nombre de ruta: `tasks.destroy`. Controlador: `TasksController.destroy`. Ninguna otra ruta cambia (path, verbo ni forma de respuesta): `GET`/`POST /api/v1/tasks`, `GET /api/v1/tasks/:id`, `PATCH /api/v1/tasks/:id/status`, `PUT /api/v1/tasks/:id/due-date`, `/auth/*` y `/account/*` siguen igual.
+Cubre, en el lado del servidor, FR-001, FR-005, FR-013, FR-014, FR-017 a FR-019 y FR-021 a FR-023, y las mitigaciones R1–R4, R6 (la parte del API), R7, R9 y R10 del [modelo de amenazas](../../../docs/security/threat-model-e2-10.md). Vive **dentro** del grupo `tasks` existente de `backend/start/routes.ts`, protegido por `middleware.auth()` (guard `api`). Nombre de ruta: `tasks.tasks.destroy`. Controlador: `TasksController.destroy`. Ninguna otra ruta cambia (path, verbo ni forma de respuesta): `GET`/`POST /api/v1/tasks`, `GET /api/v1/tasks/:id`, `PATCH /api/v1/tasks/:id/status`, `PUT /api/v1/tasks/:id/due-date`, `/auth/*` y `/account/*` siguen igual.
 
 Orden de evaluación: **sesión** (`401`) → **forma del id** (`404`) → **existencia** (`404`) → borrado (`204`). No hay cuerpo ni query que validar: **no existe rama `422`**.
 

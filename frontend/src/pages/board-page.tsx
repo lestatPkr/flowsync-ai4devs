@@ -7,6 +7,7 @@ import { byListOrder, STATUS_LABELS } from '@/lib/task-status'
 import { createTaskStatusSync } from '@/lib/task-status-sync'
 import type { Task, TaskStatus } from '@/lib/types'
 import { BoardColumn } from '@/components/board/board-column'
+import { TaskDeletedNotice } from '@/components/tasks/task-deleted-notice'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import {
@@ -258,6 +259,8 @@ export function BoardPage() {
             </Link>
           </Button>
         </div>
+
+        <TaskDeletedNotice />
 
         <p role="status" className="sr-only">
           {announcement}

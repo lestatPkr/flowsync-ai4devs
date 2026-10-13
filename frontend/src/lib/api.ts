@@ -122,7 +122,7 @@ function toApiError(status: number, body: unknown): ApiError {
 }
 
 type RequestOptions = {
-  method?: 'GET' | 'POST' | 'PATCH' | 'PUT'
+  method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE'
   body?: unknown
   token?: string | null
 }
@@ -298,6 +298,16 @@ export function setDueDate(
     { method: 'PUT', body: { dueDate }, token },
   )
     .then((response) => response.data)
+    .catch(taskNotFound)
+}
+
+/**
+ * Borra una tarea, para todo el equipo y sin vuelta atrás. El `204` no trae
+ * cuerpo (el parseo de `request` lo tolera). Un 404 es que ya no existe.
+ */
+export function deleteTask(id: number, token: string): Promise<void> {
+  return request(`/api/v1/tasks/${id}`, { method: 'DELETE', token })
+    .then(() => undefined)
     .catch(taskNotFound)
 }
 

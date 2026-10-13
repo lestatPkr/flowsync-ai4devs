@@ -25,12 +25,12 @@ node ace test functional --files=delete_task   # solo la matriz nueva
 npm test                                       # todo: las suites existentes siguen en verde sin editarse
 npm run test:coverage                          # la cobertura de app/ no baja
 npm run lint && npm run typecheck
-node ace list:routes | grep tasks              # aparece DELETE /api/v1/tasks/:id (tasks.destroy); el resto, igual que antes
+node ace list:routes | grep tasks              # aparece DELETE /api/v1/tasks/:id (tasks.tasks.destroy); el resto, igual que antes
 ```
 
 **Esperado**: los 21 casos de la [matriz](./contracts/delete-task-api.md#matriz-de-comportamiento-definition-of-done) en verde. Antes de implementar, el mismo comando debe dar **rojo** (sin ruta, `404` del router donde se espera `204`).
 
-`git diff backend/.adonisjs/` muestra la ruta `tasks.destroy` en el registro; se commitea con el cambio.
+`git diff backend/.adonisjs/` muestra la ruta `tasks.tasks.destroy` en el registro; se commitea con el cambio.
 
 ## 2. Backend a mano (opcional)
 

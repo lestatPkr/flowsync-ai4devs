@@ -91,7 +91,7 @@ backend/
 │   └── models/task.ts                       # sin cambios
 ├── config/cors.ts                           # sin cambios (DELETE ya permitido)
 ├── start/routes.ts                          # + router.delete(':id', [controllers.Tasks, 'destroy']) dentro del grupo tasks
-├── .adonisjs/client/registry/               # regenerado (tasks.destroy)
+├── .adonisjs/client/registry/               # regenerado (tasks.tasks.destroy)
 └── tests/functional/tasks/
     └── delete_task.spec.ts                  # nuevo, ANTES que la implementación
 

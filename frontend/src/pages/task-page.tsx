@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { ChangeEvent, FocusEvent } from 'react'
-import { Link, useLocation, useParams } from 'react-router'
+import { Link, useLocation, useNavigate, useParams } from 'react-router'
 import { ArrowLeftIcon } from 'lucide-react'
 import { useAuth } from '@/auth/use-auth'
 import { ApiError, getTask, INVALID_DATE_MESSAGE, setDueDate } from '@/lib/api'
@@ -8,11 +8,12 @@ import { STATUS_LABELS } from '@/lib/task-status'
 import type { TaskDetail } from '@/lib/types'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { FieldError } from '@/components/field-error'
 import { FullScreenLoader } from '@/components/full-screen-loader'
+import { DeleteTaskDialog } from '@/components/tasks/delete-task-dialog'
 
 const dateFormatter = new Intl.DateTimeFormat('es-ES', {
   dateStyle: 'long',
@@ -58,6 +59,7 @@ function BackToList({ focusTaskId }: BackToListProps) {
   return (
     <Button variant="link" asChild className="self-start px-0">
       <Link
+        id="back-to-list"
         to={fromBoard ? '/tasks/board' : '/tasks'}
         state={focusTaskId === undefined ? undefined : { focusTaskId }}
       >
@@ -283,13 +285,36 @@ function DueDateRow({ task, token, onSaved, onNotFound }: DueDateRowProps) {
   )
 }
 
-/** Una tarea por sí sola: se consulta, y se le pone o quita la fecha de vencimiento. */
+/**
+ * Una tarea por sí sola: se consulta, se le pone o quita la fecha de
+ * vencimiento y, tras confirmarlo, se borra.
+ */
 export function TaskPage() {
   const { id = '' } = useParams()
   const { token } = useAuth()
   const [attempt, setAttempt] = useState(0)
   const [state, setState] = useState<LoadState>()
+  const [confirmingDelete, setConfirmingDelete] = useState(false)
   const key = `${id}:${attempt}`
+  const location = useLocation()
+  const navigate = useNavigate()
+  const deleteButtonRef = useRef<HTMLButtonElement>(null)
+  // Adónde va el foco cuando se cierra la pregunta sin borrar, o cuando
+  // resulta que la tarea ya no existía.
+  const focusDeleteButton = useRef(false)
+  const focusBackToList = useRef(false)
+
+  useEffect(() => {
+    if (confirmingDelete || !focusDeleteButton.current) return
+    focusDeleteButton.current = false
+    deleteButtonRef.current?.focus()
+  }, [confirmingDelete])
+
+  useEffect(() => {
+    if (state?.kind !== 'not-found' || !focusBackToList.current) return
+    focusBackToList.current = false
+    document.getElementById('back-to-list')?.focus()
+  }, [state])
 
   useEffect(() => {
     if (!token) return
@@ -377,7 +402,45 @@ export function TaskPage() {
                   />
                 </dl>
               </CardContent>
+              <CardFooter className="justify-end border-t">
+                <Button
+                  ref={deleteButtonRef}
+                  variant="destructive"
+                  className="focus-visible:ring-ring/50 dark:focus-visible:ring-ring/50"
+                  onClick={() => setConfirmingDelete(true)}
+                >
+                  Borrar tarea
+                </Button>
+              </CardFooter>
             </Card>
+            <DeleteTaskDialog
+              task={state.task}
+              token={token}
+              open={confirmingDelete}
+              onCancel={() => {
+                focusDeleteButton.current = true
+                setConfirmingDelete(false)
+              }}
+              onNotFound={(error) => {
+                focusBackToList.current = true
+                setConfirmingDelete(false)
+                setState((current) =>
+                  current?.key === key
+                    ? { key, kind: 'not-found', error }
+                    : current,
+                )
+              }}
+              onDeleted={() => {
+                // A la vista de la que se vino, sin dejar en el historial una
+                // tarea que ya no existe.
+                const fromBoard =
+                  (location.state as { from?: string } | null)?.from === 'board'
+                navigate(fromBoard ? '/tasks/board' : '/tasks', {
+                  replace: true,
+                  state: { deletedTaskTitle: state.task.title },
+                })
+              }}
+            />
           </>
         ) : state.kind === 'not-found' ? (
           <>

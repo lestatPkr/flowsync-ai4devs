@@ -14,6 +14,7 @@ import { TaskForm } from '@/components/tasks/task-form'
 import { TaskList } from '@/components/tasks/task-list'
 import { TaskStatusFilter } from '@/components/tasks/task-status-filter'
 import { EmptyTasksState } from '@/components/tasks/empty-tasks-state'
+import { TaskDeletedNotice } from '@/components/tasks/task-deleted-notice'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import {
@@ -299,6 +300,8 @@ export function TasksPage() {
             </Link>
           </Button>
         </div>
+
+        <TaskDeletedNotice />
 
         <TaskForm token={token} onCreated={handleCreated} />
 

@@ -4,7 +4,7 @@ Fase 0 de [plan.md](./plan.md). Resuelve lo que la spec deja al plan (textos, d�
 
 ## 1. Endpoint, controlador y acción
 
-**Decisión**: `DELETE /api/v1/tasks/:id`, acción `destroy` de `TasksController`, registrada **dentro** del grupo `tasks` de `backend/start/routes.ts` que ya lleva `.use(middleware.auth())`: `router.delete(':id', [controllers.Tasks, 'destroy'])`. Nombre de ruta resultante: `tasks.destroy`. Respuesta de éxito: `204` sin cuerpo con `response.noContent()`, sin pasar por `serialize()`.
+**Decisión**: `DELETE /api/v1/tasks/:id`, acción `destroy` de `TasksController`, registrada **dentro** del grupo `tasks` de `backend/start/routes.ts` que ya lleva `.use(middleware.auth())`: `router.delete(':id', [controllers.Tasks, 'destroy'])`. Nombre de ruta resultante: `tasks.tasks.destroy` (el `.as('tasks')` del grupo prefija el nombre que Adonis deriva del controlador, como `tasks.tasks.show`). Respuesta de éxito: `204` sin cuerpo con `response.noContent()`, sin pasar por `serialize()`.
 
 **Razón**: borrar es una operación sobre el recurso `tasks` entero, como `show`; el estado y la fecha viven en `TaskStatusesController` y `TaskDueDatesController` porque son sub-recursos (`:id/status`, `:id/due-date`). `destroy` es el nombre convencional de AdonisJS para el verbo `DELETE` sobre un recurso. Colgar la ruta del grupo existente hereda `auth()` sin repetirlo (R1, S-1) y deja intactas las demás rutas (BOUNDARIES.md). El `204` sin cuerpo es lo que pide R7: nada de la tarea ni de quién la borró sale en la respuesta; `serialize()` envolvería en `{ data }` y no hay nada que envolver.
 

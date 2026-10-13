@@ -131,3 +131,47 @@ export async function scopeBoardTo(page: Page, prefix: string) {
     })
   })
 }
+
+/** Borra una tarea por la API, como ese miembro. Falla si no responde `204`. */
+export async function deleteTask(
+  request: APIRequestContext,
+  member: Member,
+  taskId: number,
+) {
+  const response = await request.delete(`${API_URL}/api/v1/tasks/${taskId}`, {
+    headers: {
+      Accept: 'application/json',
+      Authorization: `Bearer ${member.token}`,
+    },
+  })
+  expect(response.status()).toBe(204)
+}
+
+/** Cierra la sesión de ese miembro por la API: su token deja de valer. */
+export async function logOut(request: APIRequestContext, member: Member) {
+  const response = await request.post(`${API_URL}/api/v1/account/logout`, {
+    headers: {
+      Accept: 'application/json',
+      Authorization: `Bearer ${member.token}`,
+    },
+  })
+  expect(response.ok()).toBe(true)
+}
+
+/**
+ * El código HTTP de `GET /api/v1/tasks/:id` como ese miembro: `200` si la
+ * tarea sigue, `404` si ya no está.
+ */
+export async function getTaskStatus(
+  request: APIRequestContext,
+  member: Member,
+  taskId: number,
+): Promise<number> {
+  const response = await request.get(`${API_URL}/api/v1/tasks/${taskId}`, {
+    headers: {
+      Accept: 'application/json',
+      Authorization: `Bearer ${member.token}`,
+    },
+  })
+  return response.status()
+}
