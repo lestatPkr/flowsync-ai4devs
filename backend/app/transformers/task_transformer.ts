@@ -8,7 +8,8 @@ export default class TaskTransformer extends BaseTransformer<Task> {
       assignee: {
         ...this.pick(this.resource.assignee, ['id', 'initials']),
         // El alta guarda el nombre tal como llega: en la lista, sin espacios sobrantes.
-        fullName: this.resource.assignee.fullName!.trim(),
+        // El nombre es opcional: sin él, sigue siendo null.
+        fullName: this.resource.assignee.fullName?.trim() ?? null,
       },
     }
   }
