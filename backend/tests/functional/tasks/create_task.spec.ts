@@ -28,7 +28,7 @@ test.group('Tasks create (POST /api/v1/tasks)', (group) => {
       .loginAs(user)
       .json({ title: 'Revisar el PR de auth' })
 
-    response.assertStatus(200)
+    response.assertStatus(201)
     const task = response.body().data as TaskResponseBody
     assert.equal(task.title, 'Revisar el PR de auth')
     assert.equal(task.status, 'pending')
@@ -76,7 +76,7 @@ test.group('Tasks create (POST /api/v1/tasks)', (group) => {
       .loginAs(user)
       .json({ title: '  Revisar el PR de auth  ' })
 
-    response.assertStatus(200)
+    response.assertStatus(201)
     assert.equal((response.body().data as TaskResponseBody).title, 'Revisar el PR de auth')
   })
 
