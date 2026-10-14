@@ -1,0 +1,77 @@
+# CI de FlowSync (s5b): el harness del portátil, en el pipeline.
+#
+#   harness   → los MISMOS hooks de .claude/hooks/ (valla, diseño, build+lint, suite+cobertura, e2e+axe),
+#               corridos por scripts/ci/harness.sh. Lo determinista: es la puerta.
+#   revisor   → Claude revisa el PR y comenta en él, calibrado con REVIEW.md. Lo inferencial: opina, no decide.
+#
+# Adaptado del revisor del Módulo 5 oficial (.github/workflows/revisor.yml de s5/end): misma acción, mismos
+# permisos mínimos y el mismo secreto CLAUDE_CODE_OAUTH_TOKEN (`claude setup-token`, tira de la suscripción).
+name: ci
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  harness:
+    name: harness (las cinco puertas)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0          # harness.sh necesita el merge-base con la rama base
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24        # AdonisJS 7 y Lucid 22 piden Node >= 24
+      - name: make setup (deps, .env, APP_KEY, migraciones)
+        run: make setup
+      - name: navegador de Playwright
+        run: cd frontend && npx playwright install --with-deps chromium
+      - name: las puertas del harness
+        run: scripts/ci/harness.sh "${{ github.base_ref }}"
+
+  revisor:
+    name: revisión de Claude
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # Un PR desde un fork no ve los secretos: se salta limpio en vez de fallar sin explicar por qué.
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+      - uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          prompt: |
+            REPO: ${{ github.repository }}
+            PR NUMBER: ${{ github.event.pull_request.number }}
+
+            Eres el revisor de este repositorio. Revisa este pull request; la rama ya está en el
+            directorio de trabajo.
+
+            Lee ANTES de nada `REVIEW.md`, en la raíz: es tu calibración y es vinculante. Después,
+            `CLAUDE.md`, `BOUNDARIES.md` y `DESIGN.md`, y contrasta contra la spec de `specs/` que el
+            cambio implemente: la spec manda sobre lo que diga el código.
+
+            Publica los hallazgos EN EL PULL REQUEST: `mcp__github_inline_comment__create_inline_comment`
+            (con `confirmed: true`) para cada hallazgo con línea concreta, y un único `gh pr comment` de
+            resumen con los hallazgos priorizados (crítico / alto / medio). Si no encuentras nada, dilo
+            ahí. No edites ficheros ni propongas commits. No redirijas salidas a ficheros.
+          claude_args: |
+            --model sonnet
+            --effort medium
+            --max-turns 40
+            --allowedTools "Read,Grep,Glob,mcp__github_inline_comment__create_inline_comment,Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr comment:*)"
